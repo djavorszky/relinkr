@@ -216,6 +216,9 @@ public class LongUrl implements Serializable {
    * @return the full target URL
    */
   public URI getTargetUrl() {
+    if (targetUrl == null) {
+      targetUrl = createTargetUrl(longUrl, utmParameters);
+    }
     return targetUrl;
   }
 

@@ -30,10 +30,9 @@ import static io.relinkr.test.Mocks.UTM_PARAMETERS_MINIMAL;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +55,27 @@ public class LinkTest {
   @Test
   public void givenLinkWithoutTags_whenGetTags_thenEmpty() {
     assertTrue(link.getTags().isEmpty());
+  }
+
+  @Test
+  public void givenLinkWithoutTargetUrl_whenGetTargetUrl_thenNotNull()
+    throws Exception {
+
+    // Need to update the targetUrl field of the longUrl via reflection as
+    // the static factory methods all produce correct objects. This is not the
+    // case when the object is serialized from the database however, so this
+    // test ensures that in such cases the object is still correct.
+
+    LongUrl longUrl = LongUrl.from(LONG_URL_BASE_S);
+
+    Field targetUrl = longUrl.getClass().getDeclaredField("targetUrl");
+    targetUrl.setAccessible(true);
+    targetUrl.set(longUrl, null);
+    targetUrl.setAccessible(false);
+
+    Link insideLink = Link.of(USER_ID, longUrl);
+
+    assertNotEquals(insideLink.getTargetUrl(), null);
   }
 
   @Test
